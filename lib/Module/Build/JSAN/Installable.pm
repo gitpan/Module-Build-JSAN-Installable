@@ -3,7 +3,7 @@ package Module::Build::JSAN::Installable;
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 use Module::Build::JSAN;
 @ISA = qw(Module::Build::JSAN);
@@ -201,7 +201,7 @@ sub ACTION_test {
 }
 
 
-1; # End of Module::Build::JSAN::Installable
+__PACKAGE__ # nothingmuch (c) 
 
 __END__
 
@@ -298,7 +298,7 @@ Version 0.01
 
 =head1 DESCRIPTION
 
-This is a developer aid for creating JSAN distributions. JSAN is the
+This is a developer aid for creating JSAN distributions, which can be also installed in the local system. JSAN is the
 "JavaScript Archive Network," a JavaScript library akin to CPAN. Visit
 L<http://www.openjsan.org/> for details.
 
@@ -330,7 +330,7 @@ JSAN library. This way you can access any module from it, with URLs like:
 B<'/jsan/Test/Run.js'>  
 
 
-=item 1 ./Build task [--task_name=foo]
+=item 2 ./Build task [--task_name=foo]
 
 This action will build a specific concatenated version (task) of current distribution.
 Default task name is B<'core'>, task name can be specified with B<--task_name> command line option.
@@ -342,14 +342,14 @@ After concatenation, resulting file is placed on the following path: B</lib/Task
 considering the name of your distribution was B<Distribution::Name> and the task name was B<sample_task>
 
 
-=item 1 ./Build test
+=item 3 ./Build test
 
-This action relies on not yet release JSAN::Prove module, stay tuned for further updates.
+This action relies on not yet released JSAN::Prove module, stay tuned for further updates.
 
 =back
 
 
-=head1 Static files handling
+=head1 STATIC FILES HANDLING
 
 Under static files we'll assume any files other than javascript (*.js). Typically those are *.css files and images (*.jpg, *.gif, *.png etc).
 
@@ -408,9 +408,9 @@ Yet another testing platform for JavaScript
 
 =head1 SUPPORT
 
-You can find documentation for this module with the perldoc command.
+This module is stored in an open repository at the following address:
 
-    perldoc Module::Build::JSAN::Installable
+L<http://github.com/SamuraiJack/Module-Build-JSAN-Installable/tree/>
 
 
 You can also look for information at:
