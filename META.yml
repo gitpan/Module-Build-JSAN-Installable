@@ -1,6 +1,6 @@
 ---
 name: Module-Build-JSAN-Installable
-version: 0.03
+version: 0.04
 author:
   - 'Nickolay Platonov <nplatonov@cpan.org>'
 abstract: 'Build JavaScript distributions for JSAN, which can be installed locally'
@@ -17,7 +17,7 @@ build_requires:
 provides:
   Module::Build::JSAN::Installable:
     file: lib/Module/Build/JSAN/Installable.pm
-    version: 0.03
+    version: 0.04
 generated_by: Module::Build version 0.3201
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
