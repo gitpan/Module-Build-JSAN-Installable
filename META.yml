@@ -1,24 +1,28 @@
 ---
 name: Module-Build-JSAN-Installable
-version: 0.04
+version: 0.05
 author:
   - 'Nickolay Platonov <nplatonov@cpan.org>'
 abstract: 'Build JavaScript distributions for JSAN, which can be installed locally'
 license: perl
 resources:
   license: http://dev.perl.org/licenses/
-requires:
-  JSON: 2.00
-  Module::Build::JSAN: 0.05
-  Path::Class: 0.16
-  Text::Markdown: 1.0.24
 build_requires:
   Test::More: 0
+requires:
+  JSON: 2.00
+  Module::Build: 0.35
+  Module::Build::JSAN: 0.05
+  Path::Class: 0.16
+  Text::Markdown: v1.0.26
+  Text::MultiMarkdown: v1.0.29
+configure_requires:
+  Module::Build: 0.35
 provides:
   Module::Build::JSAN::Installable:
     file: lib/Module/Build/JSAN/Installable.pm
-    version: 0.04
-generated_by: Module::Build version 0.3201
+    version: 0.05
+generated_by: Module::Build version 0.35
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4

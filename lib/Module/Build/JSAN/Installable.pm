@@ -3,7 +3,7 @@ package Module::Build::JSAN::Installable;
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 use Module::Build::JSAN;
 @ISA = qw(Module::Build::JSAN);
@@ -16,11 +16,7 @@ use Config;
 use JSON;
 
 
-#XXX for debugging
-#use Data::Dump;
-
-
-__PACKAGE__->add_property('task_name' => 'core');
+__PACKAGE__->add_property('task_name' => 'Core');
 __PACKAGE__->add_property('static_dir' => 'static');
 __PACKAGE__->add_property('docs_markup' => 'pod');
 
@@ -41,33 +37,11 @@ sub new {
 }
 
 
+
 #================================================================================================================================================================================================================================================
 sub get_jsan_libroot {
 	return $ENV{JSANLIB} || ($^O eq 'MSWin32') ? 'c:\JSAN' : (split /\s+/, $Config{'libspath'})[1] . '/jsan';
 }
-
-
-#================================================================================================================================================================================================================================================
-# workaround for http://rt.cpan.org/Public/Bug/Display.html?id=43515
-# should be 'our', because 'resume' calls with package name
-our $skip_install_paths = 0;
-
-sub resume {
-    $skip_install_paths = 1;
-    my $res = shift->SUPER::resume(@_);
-    $skip_install_paths = 0;
-    
-    return $res;
-}
-
-
-sub _set_install_paths {
-    return if $skip_install_paths;
-    
-    shift->SUPER::_set_install_paths(@_);
-}
-# eof workaround 
-
 
 
 #================================================================================================================================================================================================================================================
@@ -227,6 +201,15 @@ sub ACTION_dist {
 sub ACTION_docs {
     my $self = shift;
     
+    #preparing 'doc' directory possible adding to cleanup 
+    my $doc_dir = catdir 'doc';
+    
+    unless (-e $doc_dir) {
+        File::Path::mkpath($doc_dir, 0, 0755) or die "Couldn't mkdir $doc_dir: $!";
+        
+        $self->add_to_cleanup($doc_dir);
+    }
+    
     my $markup = $self->docs_markup;
     
     if ($markup eq 'pod') {
@@ -321,8 +304,10 @@ sub process_dist_packages {
             
             unless (-e $res_dir) {
                 File::Path::mkpath($res_dir, 0, 0755) or die "Couldn't mkdir $res_dir: $!";
+                
+                $self->add_to_cleanup($res_dir);
             }
-            
+
             open my $fh, ">", $res or die "Cannot open $res: $!\n";
     
             print $fh $result;
@@ -436,6 +421,21 @@ sub generate_docs_from_pod {
 }
 
 
+#================================================================================================================================================================================================================================================
+sub _write_default_maniskip {
+    my $self = shift;
+    my $file = shift || 'MANIFEST.SKIP';
+
+    $self->SUPER::_write_default_maniskip($file);
+
+    my $fh = IO::File->new(">> $file") or die "Can't open $file: $!";
+    print $fh <<'EOF';
+^\.project$
+^\.git\b
+^\.externalToolBuilders\b
+EOF
+    $fh->close();
+}
 
 __PACKAGE__ # nothingmuch (c) 
 
@@ -480,55 +480,52 @@ To build, test and install a distribution:
 
 In F<Components.js>:
 
-  COMPONENTS = {
-      
-      "kernel" : [
-          "JooseX.Namespace.Depended.Manager",
-          "JooseX.Namespace.Depended.Resource",
-          
-          "JooseX.Namespace.Depended.Materialize.Code"
-      ],
-      
-      
-      "web" : [
-          "+kernel",
-      
-          "JooseX.Namespace.Depended.Transport.AjaxAsync",
-          "JooseX.Namespace.Depended.Transport.AjaxSync",
-          "JooseX.Namespace.Depended.Transport.ScriptTag",
-          
-          "JooseX.Namespace.Depended.Resource.URL",
-          "JooseX.Namespace.Depended.Resource.URL.JS",
-          "JooseX.Namespace.Depended.Resource.JS",
-          "JooseX.Namespace.Depended.Resource.JS.External",
-          
-          //should be the last        
-          "JooseX.Namespace.Depended"
-      ],
-  	
-      
-      "core" : [
-          "+web"
-      ],
-      
-      
-      "serverjs" : [
-          "+kernel",
-          
-          "JooseX.Namespace.Depended.Transport.Require",
-          "JooseX.Namespace.Depended.Resource.Require",
-          
-          //should be the last
-          "JooseX.Namespace.Depended"
-      ]
-  	
-  } 
+    COMPONENTS = {
+        
+        "Kernel" : [
+            "JooseX.Namespace.Depended.Manager",
+            "JooseX.Namespace.Depended.Resource",
+            
+            "JooseX.Namespace.Depended.Materialize.Eval",
+            "JooseX.Namespace.Depended.Materialize.ScriptTag"
+        ],
+        
+        
+        "Web" : [
+            "+Kernel",
+        
+            "JooseX.Namespace.Depended.Transport.AjaxAsync",
+            "JooseX.Namespace.Depended.Transport.AjaxSync",
+            "JooseX.Namespace.Depended.Transport.ScriptTag",
+            
+            "JooseX.Namespace.Depended.Resource.URL",
+            "JooseX.Namespace.Depended.Resource.URL.JS",
+            "JooseX.Namespace.Depended.Resource.JS",
+            "JooseX.Namespace.Depended.Resource.JS.External",
+            
+            //should be the last        
+            "JooseX.Namespace.Depended"
+        ],
+        
+        
+        "ServerJS" : [
+            "+Kernel",
+            
+            "JooseX.Namespace.Depended.Transport.Require",
+            "JooseX.Namespace.Depended.Resource.Require",
+            
+            //should be the last
+            "JooseX.Namespace.Depended"
+        ]
+        
+    } 
+
 	
 
 
 =head1 VERSION
 
-Version 0.01
+Version 0.05
 
 =cut
 
@@ -542,35 +539,18 @@ L<http://www.openjsan.org/> for details.
 This module works nearly identically to L<Module::Build::JSAN>, so please refer to
 its documentation for additional details.
 
-
 =head1 DIFFERENCES
 
 =over 4
 
 =item 1 ./Build install
 
-This action will install current distribution in your local JSAN library.
-The path to the library is resolved in the following order:
-
-
-- B<--install_base> command-line argument
-
-- environment variable B<JSAN_LIB>
-
-- Either the first directory in B<$Config{libspath}>, followed with '/jsan' (probably '/usr/local/lib' on linux systems)
-or B<'C:\JSAN'> (on Windows)
-
-
-As a convention, it is recommended, that you configure your local web-server
-that way, that B</jsan> will point at the B</lib> subdirectory of your local
-JSAN library. This way you can access any module from it, with URLs like:
-B<'/jsan/Test/Run.js'>  
-
+This action will install current distribution in your local JSAN library. See below for details.
 
 =item 2 ./Build docs
 
 This action will build a documentation files for this distribution. Default markup for documentation is POD. Alternative markup 
-can be specified with B<docs_markup> configuration parameter (see Synopsis). Currently supported markups: 'pod', 
+can be specified with C<docs_markup> configuration parameter (see Synopsis). Currently supported markups: 'pod', 
 'md' (Markdown via Text::Markdown), 'mmd' (MultiMarkdown via Text::MultiMarkdown). 
 
 Resulting documentation files will be placed under B</docs> directory, categorized by the formats. For 'pod' markup there will be
@@ -579,13 +559,13 @@ Resulting documentation files will be placed under B</docs> directory, categoriz
 =item 3 ./Build task [--task_name=foo]
 
 This action will build a specific concatenated version (task) of current distribution.
-Default task name is B<'core'>, task name can be specified with B<--task_name> command line option.
+Default task name is B<'Core'>, task name can be specified with C<--task_name> command line option.
 
 Information about tasks is stored in the B<Components.JS> file in the root of distribution.
 See the Synposys for example of B<Components.JS>. 
 
-After concatenation, resulting file is placed on the following path: B</lib/Task/Distribution/Name/sample_task.js>, 
-considering the name of your distribution was B<Distribution::Name> and the task name was B<sample_task>
+After concatenation, resulting file is placed on the following path: B</lib/Task/Distribution/Name/SampleTask.js>, 
+considering the name of your distribution was B<Distribution.Name> and the task name was B<SampleTask>
 
 
 =item 4 ./Build test
@@ -595,24 +575,44 @@ This action relies on not yet released JSAN::Prove module, stay tuned for furthe
 =back
 
 
-=head1 STATIC FILES HANDLING
+=head1 LOCAL JSAN LIBRARY
 
-Under static files we'll assume any files other than javascript (*.js). Typically those are *.css files and images (*.jpg, *.gif, *.png etc).
+This module uses concept of local JSAN library, which is organized in the same way as perl library.
 
-All static files should be placed in the 'static directory'. Default name for static directory is B<'/static'>. 
-Alternative name can be specified with B<static_dir> configuration parameter (see Synopsis). Static directory can be organized in any way you prefere.
+The path to the library is resolved in the following order:
+
+1. B<--install_base> command-line argument
+
+2. environment variable B<JSAN_LIB>
+
+3. Either the first directory in C<$Config{libspath}>, followed with C</jsan> (probably C</usr/local/lib> on linux systems)
+or C<C:\JSAN> (on Windows)
+
+As a convention, it is recommended, that you configure your local web-server
+that way, that B</jsan> will point at the B</lib> subdirectory of your local
+JSAN library. This way you can access any module from it, with URLs like:
+B<'/jsan/Test/Run.js'>  
+
+
+
+=head1 SHARED FILES HANDLING
+
+Under shared files we'll assume any files other than javascript (*.js). Typically those are *.css files and images (*.jpg, *.gif, *.png etc).
+
+All such files should be placed in the "share" directory. Default name for share directory is B<'/share'>. 
+Alternative name can be specified with C<static_dir> configuration parameter (see Synopsis). Share directory can be organized in any way you prefere.
 
 Lets assume you have the following distribution structure:
 
   /lib/Distribution/Name.js
-  /static/css/style1.css 
-  /static/img/image1.png
+  /share/css/style1.css 
+  /share/img/image1.png
 
 After building (B<./Build>) it will be processed as:
 
   /blib/lib/Distribution/Name.js
-  /blib/lib/Distribution/Name/static/css/style1.css 
-  /blib/lib/Distribution/Name/static/img/image1.png
+  /blib/lib/Distribution/Name/share/css/style1.css 
+  /blib/lib/Distribution/Name/share/img/image1.png
 
 During installation (B<./Build install>) the whole 'blib' tree along with static files will be installed in your local library.
 
