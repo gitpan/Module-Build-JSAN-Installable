@@ -16,7 +16,7 @@ name: Module-Build-JSAN-Installable
 provides:
   Module::Build::JSAN::Installable:
     file: lib/Module/Build/JSAN/Installable.pm
-    version: 0.07
+    version: 0.08
 requires:
   JSON: 2.00
   Module::Build: 0.35
@@ -26,4 +26,4 @@ requires:
   Text::MultiMarkdown: v1.0.29
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.07
+version: 0.08

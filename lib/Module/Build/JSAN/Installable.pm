@@ -3,7 +3,7 @@ package Module::Build::JSAN::Installable;
 use strict;
 use vars qw($VERSION @ISA);
 
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 use Module::Build::JSAN;
 @ISA = qw(Module::Build::JSAN);
@@ -462,6 +462,17 @@ sub check_prereq {
 sub check_autofeatures {
     return 1
 }
+
+
+#================================================================================================================================================================================================================================================
+sub prepare_metadata {
+    my ($self, $node, $keys, $args) = @_;
+    
+    $self->meta_add('static_dir' => $self->static_dir);
+    
+    return $self->SUPER::prepare_metadata($node, $keys, $args);    
+}
+
 
 
 __PACKAGE__ # nothingmuch (c) 
