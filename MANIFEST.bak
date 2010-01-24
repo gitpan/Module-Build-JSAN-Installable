@@ -1,6 +1,5 @@
 Build.PL
 Changes
-Changes~
 lib/Module/Build/JSAN/Installable.pm
 MANIFEST			This list of files
 MANIFEST.bak
