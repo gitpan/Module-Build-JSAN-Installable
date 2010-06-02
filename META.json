@@ -1,0 +1,44 @@
+{
+   "abstract" : "Build JavaScript distributions for JSAN, which can be installed locally",
+   "author" : [
+      "Nickolay Platonov <nplatonov@cpan.org>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 3.101461",
+   "license" : "perl_5",
+   "meta-spec" : {
+      "url" : "http://github.com/dagolden/cpan-meta/",
+      "version" : 2
+   },
+   "name" : "Module-Build-JSAN-Installable",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Module::Build" : "0.3601"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.3601"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "JSON" : "2.00",
+            "Module::Build" : "0.35",
+            "Module::Build::JSAN" : "0.05",
+            "Path::Class" : "0.16",
+            "Text::Markdown" : "1.0.26",
+            "Text::MultiMarkdown" : "1.0.29"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Capture::Tiny" : "0.06",
+            "Test::More" : "0"
+         }
+      }
+   },
+   "version" : "0.10"
+}
+

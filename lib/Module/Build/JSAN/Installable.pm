@@ -1,9 +1,10 @@
 package Module::Build::JSAN::Installable;
+BEGIN {
+  $Module::Build::JSAN::Installable::VERSION = '0.10';
+}
 
 use strict;
-use vars qw($VERSION @ISA);
-
-$VERSION = '0.09';
+use vars qw(@ISA);
 
 use Module::Build::JSAN;
 @ISA = qw(Module::Build::JSAN);
@@ -40,7 +41,7 @@ sub new {
 
 #================================================================================================================================================================================================================================================
 sub get_jsan_libroot {
-	return $ENV{JSANLIB} || ($^O eq 'MSWin32') ? 'c:\JSAN' : (split /\s+/, $Config{'libspath'})[1] . '/jsan';
+	return $ENV{JSANLIB} || (($^O eq 'MSWin32') ? 'c:\JSAN' : (split /\s+/, $Config{'libspath'})[1] . '/jsan');
 }
 
 
@@ -116,17 +117,25 @@ sub ACTION_task {
 
 	my $deploys = decode_json $components;
 	
-	#expanding +deploy_variant entries
-	foreach my $deploy (keys(%$deploys)) {
-		
-		$deploys->{$deploy} = [ map { 
-			
-			/^\+(.+)/ ? @{$deploys->{$1}} : $_;
-			
-		} @{$deploys->{$deploy}} ];
-	}
-
 	$self->concatenate_for_task($deploys, $self->task_name);
+}
+
+
+#================================================================================================================================================================================================================================================
+sub expand_task_entry {
+    my ($self, $deploys, $task_name, $seen) = @_;
+    
+    $seen = {} if !$seen;
+    
+    die "Recursive visit to task [$task_name] when expanding entries" if $seen->{ $task_name };
+    
+    $seen->{ $task_name } = 1; 
+    
+    return map { 
+			
+		/^\+(.+)/ ? $self->expand_task_entry($deploys, $1, $seen) : $_;
+		
+	} @{$deploys->{ $task_name }};    
 }
 
 
@@ -141,8 +150,8 @@ sub concatenate_for_task {
     	}
     
     } else {
-	    my $components = $deploys->{$task_name};
-	    die "Invalid task name: [$task_name]" unless $components;
+	    my @components = $self->expand_task_entry($deploys, $task_name);
+	    die "No components in task: [$task_name]" unless @components > 0;
 	    
 	    my @dist_dirs = split /\./, $self->dist_name();
 	    push @dist_dirs, $task_name;
@@ -153,13 +162,31 @@ sub concatenate_for_task {
 	    
 	    my $bundle_fh = $bundle_file->openw(); 
 	    
-	    foreach my $comp (@$components) {
-	        print $bundle_fh $self->comp_to_filename($comp)->slurp . ";\n";
+	    foreach my $comp (@components) {
+	        print $bundle_fh $self->get_component_content($comp) . ";\n";
 	    }
 	    
 	    $bundle_fh->close();
     };
 }
+
+
+#================================================================================================================================================================================================================================================
+sub get_component_content {
+    my ($self, $component) = @_;
+    
+    if ($component =~ /^jsan:(.+)/) {
+        my @file = ($self->get_jsan_libroot, 'lib', split /\./, $1);
+        $file[ -1 ] .= '.js';
+        
+        return file(@file)->slurp;
+    } elsif ($component =~ /^=(.+)/) {
+        return file($1)->slurp;
+    } else {
+        return $self->comp_to_filename($component)->slurp;
+    } 
+}
+
 
 
 #================================================================================================================================================================================================================================================
@@ -558,12 +585,6 @@ In F<Components.js>:
         
     } 
 
-	
-
-
-=head1 VERSION
-
-Version 0.06
 
 =cut
 
@@ -610,7 +631,7 @@ Information about tasks is stored in the B<Components.JS> file in the root of di
 See the Synposys for example of B<Components.JS>. 
 
 After concatenation, resulting file is placed on the following path: B</lib/Task/Distribution/Name/SampleTask.js>, 
-considering the name of your distribution was B<Distribution.Name> and the task name was B<SampleTask>
+assuming the name of your distribution was B<Distribution.Name> and the task name was B<SampleTask>
 
 
 =item 4 ./Build test
@@ -640,24 +661,24 @@ B<'/jsan/Test/Run.js'>
 
 
 
-=head1 SHARED FILES HANDLING
+=head1 STATIC FILES HANDLING
 
-Under shared files we'll assume any files other than javascript (*.js). Typically those are *.css files and images (*.jpg, *.gif, *.png etc).
+Under static files we'll assume any files other than javascript (*.js). Typically those are *.css files and images (*.jpg, *.gif, *.png etc).
 
-All such files should be placed in the "share" directory. Default name for share directory is B<'/share'>. 
-Alternative name can be specified with C<static_dir> configuration parameter (see Synopsis). Share directory can be organized in any way you prefere.
+All such files should be placed in the "static" directory. Default name for share directory is B<'/static'>. 
+Alternative name can be specified with C<static_dir> configuration parameter (see Synopsis). Static directory can be organized in any way you prefere.
 
 Lets assume you have the following distribution structure:
 
   /lib/Distribution/Name.js
-  /share/css/style1.css 
-  /share/img/image1.png
+  /static/css/style1.css 
+  /static/img/image1.png
 
 After building (B<./Build>) it will be processed as:
 
   /blib/lib/Distribution/Name.js
-  /blib/lib/Distribution/Name/share/css/style1.css 
-  /blib/lib/Distribution/Name/share/img/image1.png
+  /blib/lib/Distribution/Name/static/css/style1.css 
+  /blib/lib/Distribution/Name/static/img/image1.png
 
 During installation (B<./Build install>) the whole 'blib' tree along with static files will be installed in your local library.
 
