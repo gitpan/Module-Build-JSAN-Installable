@@ -4,7 +4,7 @@
       "Nickolay Platonov <nplatonov@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 3.101461",
+   "generated_by" : "Dist::Zilla version 4.101570",
    "license" : "perl_5",
    "meta-spec" : {
       "url" : "http://github.com/dagolden/cpan-meta/",
@@ -39,6 +39,7 @@
          }
       }
    },
-   "version" : "0.10"
+   "release_status" : "stable",
+   "version" : "0.11"
 }
 

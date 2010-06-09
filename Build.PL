@@ -4,6 +4,7 @@ use warnings;
 
 use Module::Build 0.3601;
 
+
 my %module_build_args = (
   'build_requires' => {
     'Capture::Tiny' => '0.06',
@@ -18,10 +19,11 @@ my %module_build_args = (
     'Nickolay Platonov <nplatonov@cpan.org>'
   ],
   'dist_name' => 'Module-Build-JSAN-Installable',
-  'dist_version' => '0.10',
+  'dist_version' => '0.11',
   'license' => 'perl',
   'module_name' => 'Module::Build::JSAN::Installable',
   'recommends' => {},
+  'recursive_test_files' => 1,
   'requires' => {
     'JSON' => '2.00',
     'Module::Build' => '0.35',
