@@ -4,11 +4,13 @@
       "Nickolay Platonov <nplatonov@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.101570",
-   "license" : "perl_5",
+   "generated_by" : "Dist::Zilla version 4.101650, CPAN::Meta::Converter version 2.101600",
+   "license" : [
+      "perl_5"
+   ],
    "meta-spec" : {
-      "url" : "http://github.com/dagolden/cpan-meta/",
-      "version" : 2
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
    },
    "name" : "Module-Build-JSAN-Installable",
    "prereqs" : {
@@ -28,18 +30,18 @@
             "Module::Build" : "0.35",
             "Module::Build::JSAN" : "0.05",
             "Path::Class" : "0.16",
-            "Text::Markdown" : "1.0.26",
-            "Text::MultiMarkdown" : "1.0.29"
+            "Text::Markdown" : "v1.0.26",
+            "Text::MultiMarkdown" : "v1.0.29"
          }
       },
       "test" : {
          "requires" : {
             "Capture::Tiny" : "0.06",
-            "Test::More" : "0"
+            "Test::More" : 0
          }
       }
    },
    "release_status" : "stable",
-   "version" : "0.11"
+   "version" : "0.12"
 }
 

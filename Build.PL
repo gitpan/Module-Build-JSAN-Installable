@@ -19,7 +19,7 @@ my %module_build_args = (
     'Nickolay Platonov <nplatonov@cpan.org>'
   ],
   'dist_name' => 'Module-Build-JSAN-Installable',
-  'dist_version' => '0.11',
+  'dist_version' => '0.12',
   'license' => 'perl',
   'module_name' => 'Module::Build::JSAN::Installable',
   'recommends' => {},

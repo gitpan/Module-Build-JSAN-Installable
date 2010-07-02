@@ -1,6 +1,6 @@
 package Module::Build::JSAN::Installable;
 BEGIN {
-  $Module::Build::JSAN::Installable::VERSION = '0.11';
+  $Module::Build::JSAN::Installable::VERSION = '0.12';
 }
 
 use strict;
@@ -87,7 +87,7 @@ sub ACTION_install {
 
 #================================================================================================================================================================================================================================================
 sub dist_name_as_dir {
-	return split(/\./, shift->dist_name());
+	return split(/\.|-/, shift->dist_name());
 }
 
 
